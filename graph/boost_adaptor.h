@@ -1,0 +1,8 @@
+//
+// Created by Trygve Bærland on 2020-01-03.
+//
+
+#ifndef BOOST_PLAYGROUND_BOOST_ADAPTOR_H
+#define BOOST_PLAYGROUND_BOOST_ADAPTOR_H
+
+#endif //BOOST_PLAYGROUND_BOOST_ADAPTOR_H
