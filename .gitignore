@@ -1,2 +1,5 @@
 build/*
 lib/*
+__pycache__/*
+cmake-build*
+.idea*
