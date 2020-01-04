@@ -64,5 +64,10 @@ TEST_SUITE("playground_boost_graph") {
                 std::cout << "distance(" << index[*vi] << ") = "
                 << d[index[*vi]] << "\n";
         }
+
+        std::vector<double> exp_dist = {0, 7, 9, 20, 26, 11};
+        for (int i=0; i < 6; i++) {
+            REQUIRE(d[i] == doctest::Approx(exp_dist[i]));
+        }
    }
 }
