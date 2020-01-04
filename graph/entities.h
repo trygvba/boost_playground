@@ -25,6 +25,10 @@ namespace playground::graph {
             net=nullptr;
         }
 
+        bool operator==(const node_base& other){
+            return id == other.id;
+        }
+
     };
     using node_base_ = shared_ptr<node_base>;
 
@@ -48,8 +52,18 @@ namespace playground::graph {
         double weight = 1.0;
 
         edge() = default;
+        edge(const edge& o) = default;
+        edge(const node_base_& asource) : source{asource}, target{nullptr}, weight{1.0} {}
         edge(node_base_& asource, node_base_& atarget, double aweight=1.0): source{asource}, target{atarget},
             weight{aweight} {}
+
+        bool operator==(const edge& other) const {
+            return *source == *(other.source) && *target == *(other.target);
+        }
+
+        bool operator!=(const edge& other) const {
+            return not operator==(other);
+        }
     };
 
     struct network {
@@ -129,7 +143,6 @@ namespace playground::graph {
             edges.erase(it);
             return *this;
         }
-
         static void set_log_level(const dlib::log_level& new_level);
     };
 }

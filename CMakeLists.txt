@@ -47,7 +47,7 @@ add_subdirectory(src)
 add_subdirectory(graph)
 add_subdirectory(test)
 
-add_library(_playground SHARED pyapi/pyapi.cpp test/test_network.cpp)
+add_library(_playground SHARED pyapi/pyapi.cpp test/test_network.cpp graph/boost_adaptor.h)
 target_link_libraries(_playground ${boost_link_libraries}
         ${PYTHON_LIBRARIES}
         MyClass
