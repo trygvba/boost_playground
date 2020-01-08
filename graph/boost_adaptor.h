@@ -34,6 +34,8 @@ namespace boost {
     };
 
     // PropertyMaps:
+    // We inherit from boost::put_get_helper here so that the correct overloads of
+    // boost::get(...) and boost::put(...) are called.
     class network_id_map: public boost::put_get_helper<int, network_id_map>
     {
     public:
@@ -68,7 +70,7 @@ namespace boost {
 
         network_edge_weight_map() = default;
         template<class T>
-            value_type operator[](T x) const { return x.weight; }
+        value_type operator[](T x) const { return x.weight; }
     };
 
     inline network_edge_weight_map get(edge_weight_t, const network& g) {

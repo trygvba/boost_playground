@@ -5,6 +5,7 @@
 #include <doctest/doctest.h>
 #include "entities.h"
 #include <dlib/logger.h>
+#include "model_networks.h"
 #include <memory>
 
 namespace graph=playground::graph;
@@ -72,5 +73,20 @@ TEST_SUITE("playground_graph") {
         }
         CHECK_EQ(acount, 1);
         CHECK_EQ(bcount, 1);
+    }
+
+    TEST_CASE("incidence_network") {
+        auto g = test::inc_shortest_path_graph();
+        CHECK_EQ(g.a_nodes.size(), 3);
+        CHECK_EQ(g.b_nodes.size(), 3);
+
+        auto a = g.a_nodes[0];
+        CHECK_EQ(a->in_conns.size(), 0);
+        CHECK_EQ(a->out_conns.size(), 3);
+
+        auto b = g.b_nodes[0];
+        CHECK_EQ(b->in_conns.size(), 1);
+        CHECK_EQ(b->out_conns.size(), 2);
+        CHECK_EQ(b->num_connections, 3);
     }
 }

@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <math.h> // For comparison
 #include <boost/variant.hpp>
 #include <dlib/logger.h>
 
@@ -16,17 +17,42 @@ namespace playground::graph {
 
     struct network;
 
+    struct node_base;
+    using node_base_ = shared_ptr<node_base>;
+
+    struct connection {
+        connection() = default;
+        connection(double aweight, const node_base_& anode): weight(aweight), target(anode) { }
+
+        bool has_target() { return target != nullptr; }
+        double weight = 0.0;
+        node_base_ target = nullptr;
+
+        bool operator==(const connection& other) const{
+            return target == other.target &&
+                fabs(weight - other.weight) < 0.00001;
+        }
+    };
+
     struct node_base {
         int id;
         double weight;
         network* net=nullptr;
+        vector<connection> in_conns;
+        vector<connection> out_conns;
+
         node_base(int aid, double aweight): id{aid}, weight{aweight} {}
         virtual ~node_base(){
             net=nullptr;
         }
 
-        bool operator==(const node_base& other){
-            return id == other.id;
+        virtual void print() {
+            std::cout << "NodeBase(" << id << ")[" << weight << "]";
+        }
+
+        bool operator==(const node_base& other) const {
+            return id == other.id &&
+                fabs(weight - other.weight) < 0.00001; // For now, since I can't be bothered, apparently.
         }
 
     };
@@ -34,17 +60,22 @@ namespace playground::graph {
 
     struct nodeA: node_base {
         nodeA(int aid, double aweight): node_base(aid, aweight) {}
+
+        virtual void print() {
+            std::cout << "NodeA(" << id << ")[" << weight << "]";
+        }
     };
     using nodeA_ = shared_ptr<nodeA>;
 
     struct nodeB: node_base {
         int num_connections = 0;
         nodeB(int aid, double aweight): node_base(aid, aweight) {}
+
+        virtual void print() {
+            std::cout << "NodeB(" << id << ")[" << weight << "]";
+        }
     };
     using nodeB_ = shared_ptr<nodeB>;
-
-    // We make a variant for node types:
-    using node_type = boost::variant<nodeA_, nodeB_>;
 
     struct edge {
         node_base_ target;
@@ -145,4 +176,68 @@ namespace playground::graph {
         }
         static void set_log_level(const dlib::log_level& new_level);
     };
+
+    struct incidence_network {
+        vector<nodeA_> a_nodes;
+        vector<nodeB_> b_nodes;
+
+        incidence_network() { };
+        incidence_network(incidence_network&) = default;
+        incidence_network(incidence_network&&) = default;
+
+        incidence_network& add_A(const nodeA_& an_anode){
+            an_anode->net = nullptr; // Disconnect
+            // Check that ID is unique
+            auto it = std::find_if(a_nodes.begin(), a_nodes.end(), [&an_anode](auto el) {return el->id==an_anode->id;} );
+            if (it != a_nodes.end()) {
+                throw std::runtime_error("nodeA with ID " + std::to_string(an_anode->id) + " is already in network");
+            }
+            a_nodes.push_back(an_anode);
+            return *this;
+        }
+
+        incidence_network& add_B(const nodeB_& a_bnode){
+            a_bnode->net = nullptr;
+            auto it = std::find_if(b_nodes.begin(), b_nodes.end(),
+                [&a_bnode](auto el){ return el->id == a_bnode->id; });
+            if (it != b_nodes.end())
+                throw std::runtime_error("nodeB with ID " + std::to_string(a_bnode->id) + " is already in network");
+            b_nodes.push_back(a_bnode);
+            return *this;
+        }
+
+        nodeA_ create_nodeA(int id, double weight) {
+            auto anode = make_shared<nodeA>(id, weight);
+            auto it = std::find_if(a_nodes.begin(), a_nodes.end(), [id](auto el) {return el->id==id;} );
+            if (it != a_nodes.end()) {
+                throw std::runtime_error("nodeA with ID " + std::to_string(id) + " is already in network");
+            }
+            a_nodes.push_back(anode);
+            return anode;
+        }
+
+        nodeB_ create_nodeB(int id, double weight) {
+            auto bnode = make_shared<nodeB>(id, weight);
+            auto it = std::find_if(b_nodes.begin(), b_nodes.end(), [id](auto el) {return el->id==id;} );
+            if (it != b_nodes.end()) {
+                throw std::runtime_error("nodeB with ID " + std::to_string(id) + " is already in network");
+            }
+            b_nodes.push_back(bnode);
+            return bnode;
+        }
+
+        incidence_network& connect(const node_base_& source, const node_base_& target, double weight) {
+            if (source == nullptr || target == nullptr)
+                throw std::runtime_error("Only connect to non-nullptr nodes allowed.");
+            source->out_conns.push_back(connection(weight, target));
+            target->in_conns.push_back(connection(weight, source));
+            nodeB_ bnode = std::dynamic_pointer_cast<nodeB>(source);
+            if (bnode) bnode->num_connections++;
+            bnode = std::dynamic_pointer_cast<nodeB>(target);
+            if (bnode) bnode->num_connections++;
+            return *this;
+        }
+    };
+
+
 }
