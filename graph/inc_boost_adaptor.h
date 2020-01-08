@@ -36,8 +36,7 @@ namespace boost {
             public iterator_facade<vertex_iterator,
                 playground::graph::node_base_,
                 bidirectional_traversal_tag,
-                playground::graph::node_base_,
-                const playground::graph::node_base_>{
+                playground::graph::node_base_>{
         public:
             vertex_iterator(playground::graph::node_base_ node=nullptr, const IncNet* g=nullptr): base(node), g(g) {
                 if (node && g) {
@@ -149,8 +148,7 @@ namespace boost {
             public iterator_facade<in_edge_iterator,
                 std::pair<playground::graph::node_base_, playground::graph::connection>,
                 bidirectional_traversal_tag,
-                std::pair<playground::graph::node_base_, playground::graph::connection>,
-                const std::pair<playground::graph::node_base_, playground::graph::connection>>{
+                std::pair<playground::graph::node_base_, playground::graph::connection>>{
         public:
             in_edge_iterator(std::vector<playground::graph::connection>::const_iterator an_iter = std::vector<playground::graph::connection>::const_iterator{} ,
                 playground::graph::node_base_ asource=nullptr): source(asource), iter(an_iter) {
