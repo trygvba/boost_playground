@@ -1,7 +1,7 @@
 find_package(doctest REQUIRED)
 
 set(test_sources
-        test_network.cpp model_networks.h test_boost_graph.cpp test_virtual.cpp)
+        test_network.cpp model_networks.h test_boost_graph.cpp test_virtual.cpp test_binary_visitor.cpp)
 
 set(target "test_playground")
 add_definitions("-D__UNIT_TEST__ -DVERBOSE=0 ")

@@ -14,7 +14,7 @@ namespace boost {
     using IncNet = playground::graph::incidence_network;
     struct inc_net_traversal_category:
         public virtual vertex_list_graph_tag,
-        public virtual incidence_graph_tag,
+        //public virtual incidence_graph_tag,
         public virtual bidirectional_graph_tag,
         public virtual adjacency_graph_tag
     { };
@@ -22,7 +22,7 @@ namespace boost {
     template<>
     struct graph_traits<IncNet> {
         using traversal_category = inc_net_traversal_category;
-        using directed_category = boost::directed_tag;
+        using directed_category = boost::undirected_tag;
 
         using vertex_descriptor = playground::graph::node_base_;
         using edge_descriptor = std::pair<playground::graph::node_base_, playground::graph::connection>;
